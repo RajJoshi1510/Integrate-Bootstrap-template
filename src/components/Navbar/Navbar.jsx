@@ -1,55 +1,96 @@
-import React, { useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import "./Navbar.css";
+
+import { logout, auth } from "../../firebase";
+
 import logo from "../../assets/logo.png";
 import search_icon from "../../assets/search_icon.svg";
 import bell_icon from "../../assets/bell_icon.svg";
 import profile_img from "../../assets/profile_img.png";
-import caret_icon from "../../assets/caret_icon.svg";
-import { logout } from "../../firebase";
 
 const Navbar = () => {
-  const navref = useRef();
+  const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [user, setUser] = useState(null);
+
   useEffect(() => {
-    window.addEventListener("scroll", () => {
-      if (window.scrollY >= 80) {
-        navref.current.classList.add("nav-dark");
-      } else {
-        navref.current.classList.remove("nav-dark");
-      }
-    });
+    const unsub = auth.onAuthStateChanged((u) => setUser(u));
+    return () => unsub();
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 0);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Logged out successfully");
+      navigate("/login");
+    } catch (err) {
+      toast.error("Logout failed");
+    }
+  };
+
   return (
-    <div ref={navref} className="navbar">
+    <div className={`navbar ${scrolled ? "scrolled" : ""}`}>
       <div className="navbar-left">
-        <img src={logo} alt="" />
-        <ul>
-          <li>Home</li>
+        <img
+          src={logo}
+          className="logo"
+          alt="Netflix"
+          onClick={() => navigate("/")}
+        />
+
+        <ul className="nav-links">
+          <li onClick={() => navigate("/")}>Home</li>
           <li>TV Shows</li>
           <li>Movies</li>
           <li>New & Popular</li>
           <li>My List</li>
-          <li>Browser by Languages</li>
         </ul>
       </div>
+
       <div className="navbar-right">
-        <img src={search_icon} alt="" className="icons" />
-        <p>Children</p>
-        <img src={bell_icon} alt="" className="icons" />
+        <img src={search_icon} className="nav-icon" alt="search" />
 
-        <div className="navbar-profile">
-          <img src={profile_img} alt="" className="profile" />
-          <img src={caret_icon} alt="" />
+        <p onClick={() => navigate("/kids")} style={{ cursor: "pointer" }}>
+          Kids
+        </p>
 
-          <div className="dropdown">
-            <p
-              onClick={() => {
-                logout();
-              }}
-            >
-              Sign Out
-            </p>
-          </div>
+        <img src={bell_icon} className="nav-icon" alt="bell" />
+
+        <div className="profile" onClick={() => setShowProfileMenu(!showProfileMenu)}>
+          <img src={profile_img} className="profile-img" alt="profile" />
+
+          {showProfileMenu && (
+            <div className="profile-menu">
+              {user && (
+                <div className="profile-menu-user">
+                  {user.email}
+                </div>
+              )}
+
+              <div className="profile-menu-item" onClick={() => navigate("/profile")}>
+                Account
+              </div>
+
+              <div className="profile-menu-item" onClick={() => navigate("/help")}>
+                Help Center
+              </div>
+
+              <div className="profile-menu-divider"></div>
+
+              <div className="profile-menu-item logout" onClick={handleLogout}>
+                Sign Out of Netflix
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

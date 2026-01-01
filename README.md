@@ -93,3 +93,4 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 - Thanks to the Vite and React communities for their support and resources.
 - Special thanks to TMDB for providing movie data and Firebase for authentication services.
 "# Integrate-Bootstrap-template" 
+"# Firebase-Storage-google_auth" 
