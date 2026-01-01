@@ -94,3 +94,4 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 - Special thanks to TMDB for providing movie data and Firebase for authentication services.
 "# Integrate-Bootstrap-template" 
 "# Firebase-Storage-google_auth" 
+"# Firebase-Storage-google_auth" 
